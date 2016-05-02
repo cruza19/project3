@@ -1,0 +1,252 @@
+//Project 3 CST 112. Abel Cruz.
+String title=  "Spider.";
+String author=  "Abel Cruz";
+
+
+
+
+Ladder steps;
+Button[] buttons;
+Spider spider1;
+Flock[] birds= new Flock[4];
+String buttonN[]= {
+  "UP", "DOWN", "BIRDS", "RESET", "QUIT"
+};
+int amoButtons= buttonN.length;
+float horizon;
+void setup() {
+
+  size (800, 500);
+  horizon=height/3;
+  steps=new Ladder (color(255, 180, 15), 0, 0, 0, 0);   
+  spider1=new Spider (color(0, 0, 0), (width/2)+60, height+100, 100, 150, 1);
+  moreBirds();
+  makebuttons();
+}
+void moreBirds() {
+  for ( int i =0; i < birds.length; i++) {
+    birds[i]= new Flock(12, random( 40, height/4 ), random(10, 50), random(10, 50), random(0, 250));
+  }
+}
+void makebuttons() {
+  buttons=  new Button[amoButtons];
+  float x=50, y=50;
+  for (int j=0; j<amoButtons; j++ ) {
+    buttons[j]=  new Button( x, y, buttonN[j] );
+    y += 50;
+  }
+}
+
+
+void draw() {
+  scene(); 
+  flock();
+  buttons();
+  steps.show();
+  spider1.show();
+  msg();
+}
+
+
+
+void scene() {
+  background(200, 200, 200);
+  noStroke();
+  fill(0, 255, 31);
+  rectMode(CORNER);
+  rect(0, horizon, width, height*5/3);
+}
+
+void flock() {
+  for ( int i =0; i < birds.length; i++) {
+    birds[i].show();
+    birds[i].move();
+  }
+}
+void keyPressed() {
+
+  if (key == 'q') exit();
+  if (key == 'r') reset();
+  if (key == 'u') spider1.up();
+  if (key == 'd') spider1.down();
+}
+
+void buttons() {
+  for (int j=0; j<buttonN.length; j++) {
+    buttons[j].show();
+  }
+}
+
+
+class Button {
+  float x, y;
+  float w=80, h=30;
+  String name;
+  float r=random(0, 255), g=random(0, 255), b=random(0, 255);
+
+  Button( float x, float y, String s ) {
+    this.x=x;
+    this.y=y;
+    this.name=  s;
+  }
+
+  void show() {
+    stroke(0);
+    fill(r, g, b);
+    rect( x, y, w, h );
+    fill(0);
+    text( name, x+5, y+h*2/3 );
+  }
+  boolean click( float xx, float yy ) {
+    if (xx < x)   return false;
+    if (xx > x+w) return false;
+    if (yy < y)   return false;
+    if (yy > y+h) return false;
+    return true;
+  }
+}
+
+class Flock {
+  int p;
+  float y, w;
+  float h, x;
+
+  Flock(int tempp, float tempy, float tempw, float temph, float tempx) {
+
+    p=tempp;
+    x=tempx;
+    y=tempy;
+    w=tempw;
+    h=temph;
+  }
+  void show() {
+    fill(255, 0, 0);
+    triangle (x, y, x-w, y-h/2, x-w, y+h/2);
+  }
+  void move() {
+    if (x>0) x=x+1;
+    else if (x>width+200) {
+      x=0;
+      y=  random( 30, horizon-30 );
+    }
+  }
+}
+
+class Spider {
+  color c;
+  float x, y;
+  float h, w, z;
+
+  Spider(color tempC, float tempx, float tempy, float tempw, float temph, float tempz) {
+
+    c=tempC;
+    x=tempx;
+    y=tempy;
+    w=tempw;
+    h=temph;
+    z=tempz;
+  }
+  void show() {
+    strokeWeight(5);
+    stroke(c);
+    line(x+30*z, y-150, x+30*z, y); // Right arm 
+    line(x-30*z, y-100, x-30*z, y+50); // Left arm 
+
+    fill(c);
+    noStroke();
+    strokeWeight(0);
+    ellipseMode(CENTER);
+    ellipse(x, y-50, w, w);
+    ellipse(x, y-w, w/2, w/2);
+    fill(255, 255, 255);
+    ellipse(x-10, y-100, w/4, w/4);
+    ellipse(x+10, y-100, w/4, w/4);
+    fill(0);
+    ellipse(x-10, y-105, w/6, w/6);
+    ellipse(x+10, y-105, w/6, w/6);
+    strokeWeight(0);
+
+    for (int i=2; i<8; i+=1) {
+      fill(random(0, 255), random(0, 255), random(0, 255));
+      ellipse(x, y-50, h/i, h/i);
+      //h=h/2;
+    }
+  }
+  void up() {
+    z=-z;
+    if (y>0) {
+
+      y = y - 50;
+    }
+  }
+  void down() {
+    z=-z;
+    if (y<height+100) {
+      y = y + 50;
+    }
+  }
+}
+
+
+class Ladder {
+  color c;
+  float x, y;
+  float h, w;
+
+  Ladder(color tempC, float tempx, float tempy, float tempw, float temph) {
+
+    c=tempC;
+    x=tempx;
+    y=tempy;
+    w=tempw;
+    h=temph;
+  }
+  void show() {
+    stroke(20);
+    fill(c);
+    for (int i = 0; i<height; i+= 1) { 
+      rect(width/2, i*50, 100, 10);
+    }
+    float railx= width/2;
+    for (int j=0; j<2; j++) {
+      rect(railx, 0, 20, height);
+      railx+=100;
+    }
+  }
+}
+
+void reset() {
+
+  spider1.y=height+100;
+}
+void mousePressed() {
+
+  if ( buttons[0].click(mouseX, mouseY) ) { 
+    spider1.up(); 
+    return;
+  }
+  if ( buttons[1].click(mouseX, mouseY) ) { 
+    spider1.down(); 
+    return;
+  }
+  if ( buttons[2].click(mouseX, mouseY) ) { 
+    moreBirds();
+    // flock(); 
+    return;
+  }// i cannot get the flock to work =(
+  if ( buttons[3].click(mouseX, mouseY) ) { 
+    reset(); 
+    return;
+  }
+  if ( buttons[4].click(mouseX, mouseY) ) { 
+    exit(); 
+    return;
+  }
+}
+void msg() {
+
+  fill(0, 0, 0);
+
+  text("Spider", width/4, height/7);
+  text("Abel Cruz, CST 112", width/4, height/5);
+}
